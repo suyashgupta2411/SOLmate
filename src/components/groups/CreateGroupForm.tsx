@@ -11,7 +11,7 @@ export default function CreateGroupForm() {
     subject: '',
     description: '',
     maxMembers: 10,
-    stakeRequirement: 0.1,
+    stakeRequirement: 0.001, // Set to 0.001 SOL for testing
     duration: 30,
   });
 
@@ -54,7 +54,7 @@ export default function CreateGroupForm() {
                 value={formData.name}
                 onChange={handleChange}
                 required
-                className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                className="w-full px-4 py-3 bg-white/10 border border-gray-700 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-accent-500 focus:border-transparent"
                 placeholder="e.g., Advanced JavaScript Study Group"
               />
             </div>
@@ -68,7 +68,7 @@ export default function CreateGroupForm() {
                 value={formData.subject}
                 onChange={handleChange}
                 required
-                className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                className="w-full px-4 py-3 bg-white/10 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-accent-500 focus:border-transparent"
               >
                 <option value="">Select a subject</option>
                 {subjects.map(subject => (
@@ -89,7 +89,7 @@ export default function CreateGroupForm() {
                 onChange={handleChange}
                 required
                 rows={4}
-                className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-none"
+                className="w-full px-4 py-3 bg-white/10 border border-gray-700 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-accent-500 focus:border-transparent resize-none"
                 placeholder="Describe what your study group will focus on..."
               />
             </div>
@@ -107,7 +107,7 @@ export default function CreateGroupForm() {
                   min="2"
                   max="20"
                   required
-                  className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                  className="w-full px-4 py-3 bg-white/10 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-accent-500 focus:border-transparent"
                 />
               </div>
 
@@ -120,11 +120,11 @@ export default function CreateGroupForm() {
                   name="stakeRequirement"
                   value={formData.stakeRequirement}
                   onChange={handleChange}
-                  min="0.01"
+                  min="0.001"
                   max="10"
-                  step="0.01"
+                  step="0.001"
                   required
-                  className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                  className="w-full px-4 py-3 bg-white/10 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-accent-500 focus:border-transparent"
                 />
               </div>
 
@@ -140,13 +140,13 @@ export default function CreateGroupForm() {
                   min="7"
                   max="365"
                   required
-                  className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                  className="w-full px-4 py-3 bg-white/10 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-accent-500 focus:border-transparent"
                 />
               </div>
             </div>
 
-            <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-4">
-              <h4 className="text-blue-300 font-medium mb-2">Group Settings</h4>
+            <div className="bg-primary-500/10 border border-primary-500/20 rounded-lg p-4">
+              <h4 className="text-primary-300 font-medium mb-2">Group Settings</h4>
               <ul className="text-sm text-gray-300 space-y-1">
                 <li>• Members stake {formData.stakeRequirement} SOL to join</li>
                 <li>• Group runs for {formData.duration} days</li>

@@ -18,7 +18,7 @@ export default function StudyGroupCard({
   onView, 
   showJoinButton = true 
 }: StudyGroupCardProps) {
-  const participationRate = Math.round((group.currentMembers / group.maxMembers) * 100);
+  const participationRate = group.maxMembers > 0 ? Math.round((group.currentMembers / group.maxMembers) * 100) : 0;
 
   return (
     <GlassCard hover className="p-6 h-full flex flex-col">
@@ -26,7 +26,7 @@ export default function StudyGroupCard({
         <div className="flex items-start justify-between mb-4">
           <div>
             <h3 className="text-xl font-semibold text-white mb-2">{group.name}</h3>
-            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-500/20 text-purple-300 border border-purple-500/30">
+            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-accent-500/20 text-accent-300 border border-accent-500/30">
               {group.subject}
             </span>
           </div>
@@ -42,13 +42,13 @@ export default function StudyGroupCard({
 
         <div className="grid grid-cols-2 gap-4 mb-6">
           <div className="flex items-center text-gray-300">
-            <Users className="h-4 w-4 mr-2 text-blue-400" />
+            <Users className="h-4 w-4 mr-2 text-primary-400" />
             <span className="text-sm">
               {group.currentMembers}/{group.maxMembers}
             </span>
           </div>
           <div className="flex items-center text-gray-300">
-            <Clock className="h-4 w-4 mr-2 text-purple-400" />
+            <Clock className="h-4 w-4 mr-2 text-accent-400" />
             <span className="text-sm">{group.duration} days</span>
           </div>
           <div className="flex items-center text-gray-300">
