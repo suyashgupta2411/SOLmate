@@ -1,5 +1,5 @@
 {
-  "name": "decentralized-study-groups",
+  "name": "solmate-study-groups",
   "private": true,
   "version": "1.0.0",
   "type": "module",
@@ -10,26 +10,26 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@project-serum/anchor": "^0.24.2",
     "@solana/wallet-adapter-base": "^0.9.23",
     "@solana/wallet-adapter-react": "^0.15.35",
     "@solana/wallet-adapter-react-ui": "^0.9.35",
     "@solana/wallet-adapter-wallets": "^0.19.32",
     "@solana/web3.js": "^1.87.6",
-    "bn.js": "^5.2.1",
+    "@project-serum/anchor": "^0.24.2",
     "firebase": "^10.7.1",
     "framer-motion": "^10.16.16",
     "lucide-react": "^0.344.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
+    "react-router-dom": "^6.20.1",
     "react-hot-toast": "^2.4.1",
-    "react-router-dom": "^6.20.1"
+    "bn.js": "^5.2.1"
   },
   "devDependencies": {
     "@eslint/js": "^9.9.1",
-    "@types/bn.js": "^5.1.5",
     "@types/react": "^18.3.5",
     "@types/react-dom": "^18.3.0",
+    "@types/bn.js": "^5.1.5",
     "@vitejs/plugin-react": "^4.3.1",
     "autoprefixer": "^10.4.18",
     "eslint": "^9.9.1",

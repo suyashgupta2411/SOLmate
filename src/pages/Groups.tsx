@@ -1,38 +1,50 @@
-import React, { useEffect, useState } from 'react';
-import { motion } from 'framer-motion';
-import { Search, Filter, Plus } from 'lucide-react';
-import { Link } from 'react-router-dom';
-import { useStudyGroup } from '../contexts/StudyGroupContext';
-import StudyGroupCard from '../components/groups/StudyGroupCard';
-import GlassCard from '../components/ui/GlassCard';
-import Button from '../components/ui/Button';
+import React, { useEffect, useState } from "react";
+import { motion } from "framer-motion";
+import { Search, Filter, Plus } from "lucide-react";
+import { Link } from "react-router-dom";
+import { useStudyGroup } from "../contexts/StudyGroupContext";
+import StudyGroupCard from "../components/groups/StudyGroupCard";
+import GlassCard from "../components/ui/GlassCard";
+import Button from "../components/ui/Button";
 
 export default function Groups() {
-  const { studyGroups, fetchStudyGroups, joinGroup, loading } = useStudyGroup();
-  const [searchTerm, setSearchTerm] = useState('');
-  const [selectedSubject, setSelectedSubject] = useState('');
-  const [sortBy, setSortBy] = useState('members');
+  const { studyGroups, fetchStudyGroups, joinGroup, loading, isMemberOfGroup } =
+    useStudyGroup();
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedSubject, setSelectedSubject] = useState("");
+  const [sortBy, setSortBy] = useState("members");
 
   useEffect(() => {
     fetchStudyGroups();
   }, []);
 
-  const subjects = ['All', 'Programming', 'Mathematics', 'Science', 'Technology', 'Business'];
+  const subjects = [
+    "All",
+    "Programming",
+    "Mathematics",
+    "Science",
+    "Technology",
+    "Business",
+  ];
 
   const filteredGroups = studyGroups
-    .filter(group => {
-      const matchesSearch = group.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                           group.description.toLowerCase().includes(searchTerm.toLowerCase());
-      const matchesSubject = !selectedSubject || selectedSubject === 'All' || group.subject === selectedSubject;
+    .filter((group) => {
+      const matchesSearch =
+        group.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        group.description.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesSubject =
+        !selectedSubject ||
+        selectedSubject === "All" ||
+        group.subject === selectedSubject;
       return matchesSearch && matchesSubject;
     })
     .sort((a, b) => {
       switch (sortBy) {
-        case 'members':
+        case "members":
           return b.currentMembers - a.currentMembers;
-        case 'stake':
+        case "stake":
           return a.stakeRequirement - b.stakeRequirement;
-        case 'reward':
+        case "reward":
           return b.rewardPool - a.rewardPool;
         default:
           return 0;
@@ -40,10 +52,7 @@ export default function Groups() {
     });
 
   const handleJoinGroup = async (groupId: string) => {
-    const group = studyGroups.find(g => g.id === groupId);
-    if (group) {
-      await joinGroup(groupId, group.stakeRequirement);
-    }
+    await joinGroup(groupId);
   };
 
   return (
@@ -58,7 +67,9 @@ export default function Groups() {
         >
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6">
             <div>
-              <h1 className="text-4xl font-bold text-white mb-2">Study Groups</h1>
+              <h1 className="text-4xl font-bold text-white mb-2">
+                Study Groups
+              </h1>
               <p className="text-gray-300 text-lg">
                 Discover and join study groups that match your interests
               </p>
@@ -99,8 +110,12 @@ export default function Groups() {
                   onChange={(e) => setSelectedSubject(e.target.value)}
                   className="w-full px-3 py-2 bg-white/10 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-accent-500 focus:border-transparent"
                 >
-                  {subjects.map(subject => (
-                    <option key={subject} value={subject === 'All' ? '' : subject} className="bg-dark-800">
+                  {subjects.map((subject) => (
+                    <option
+                      key={subject}
+                      value={subject === "All" ? "" : subject}
+                      className="bg-dark-800"
+                    >
                       {subject}
                     </option>
                   ))}
@@ -116,9 +131,15 @@ export default function Groups() {
                   onChange={(e) => setSortBy(e.target.value)}
                   className="w-full px-3 py-2 bg-white/10 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-accent-500 focus:border-transparent"
                 >
-                  <option value="members" className="bg-dark-800">Most Popular</option>
-                  <option value="stake" className="bg-dark-800">Lowest Stake</option>
-                  <option value="reward" className="bg-dark-800">Highest Rewards</option>
+                  <option value="members" className="bg-dark-800">
+                    Most Popular
+                  </option>
+                  <option value="stake" className="bg-dark-800">
+                    Lowest Stake
+                  </option>
+                  <option value="reward" className="bg-dark-800">
+                    Highest Rewards
+                  </option>
                 </select>
               </div>
 
@@ -157,20 +178,24 @@ export default function Groups() {
             transition={{ duration: 0.5, delay: 0.2 }}
             className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
           >
-            {filteredGroups.map((group, index) => (
-              <motion.div
-                key={group.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
-              >
-                <StudyGroupCard
-                  group={group}
-                  onJoin={handleJoinGroup}
-                  onView={(id) => console.log('View group:', id)}
-                />
-              </motion.div>
-            ))}
+            {filteredGroups.map((group, index) => {
+              const isMember = isMemberOfGroup(group.id);
+              return (
+                <motion.div
+                  key={group.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5, delay: index * 0.1 }}
+                >
+                  <StudyGroupCard
+                    group={group}
+                    onJoin={handleJoinGroup}
+                    onView={(id) => console.log("View group:", id)}
+                    isMember={isMember}
+                  />
+                </motion.div>
+              );
+            })}
           </motion.div>
         ) : (
           <motion.div

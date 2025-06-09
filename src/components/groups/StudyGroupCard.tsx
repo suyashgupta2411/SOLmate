@@ -1,31 +1,38 @@
-import React from 'react';
-import { motion } from 'framer-motion';
-import { Users, Clock, Coins, TrendingUp } from 'lucide-react';
-import { StudyGroup } from '../../contexts/StudyGroupContext';
-import GlassCard from '../ui/GlassCard';
-import Button from '../ui/Button';
+import React from "react";
+// import { motion } from "framer-motion";
+import { Users, Clock, Coins, TrendingUp } from "lucide-react";
+import { StudyGroup } from "../../contexts/StudyGroupContext";
+import GlassCard from "../ui/GlassCard";
+import Button from "../ui/Button";
 
 interface StudyGroupCardProps {
   group: StudyGroup;
   onJoin?: (groupId: string) => void;
   onView?: (groupId: string) => void;
   showJoinButton?: boolean;
+  isMember?: boolean;
 }
 
-export default function StudyGroupCard({ 
-  group, 
-  onJoin, 
-  onView, 
-  showJoinButton = true 
+export default function StudyGroupCard({
+  group,
+  onJoin,
+  onView,
+  showJoinButton = true,
+  isMember = false,
 }: StudyGroupCardProps) {
-  const participationRate = group.maxMembers > 0 ? Math.round((group.currentMembers / group.maxMembers) * 100) : 0;
+  const participationRate =
+    group.maxMembers > 0
+      ? Math.round((group.currentMembers / group.maxMembers) * 100)
+      : 0;
 
   return (
     <GlassCard hover className="p-6 h-full flex flex-col">
       <div className="flex-1">
         <div className="flex items-start justify-between mb-4">
           <div>
-            <h3 className="text-xl font-semibold text-white mb-2">{group.name}</h3>
+            <h3 className="text-xl font-semibold text-white mb-2">
+              {group.name}
+            </h3>
             <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-accent-500/20 text-accent-300 border border-accent-500/30">
               {group.subject}
             </span>
@@ -64,15 +71,26 @@ export default function StudyGroupCard({
 
       <div className="flex space-x-3">
         {onView && (
-          <Button variant="secondary\" onClick={() => onView(group.id)} className="flex-1">
+          <Button
+            variant="secondary"
+            onClick={() => onView(group.id)}
+            className="flex-1"
+          >
             View Details
           </Button>
         )}
-        {showJoinButton && onJoin && group.currentMembers < group.maxMembers && (
-          <Button variant="primary" onClick={() => onJoin(group.id)} className="flex-1">
-            Join Group
-          </Button>
-        )}
+        {showJoinButton &&
+          onJoin &&
+          group.currentMembers < group.maxMembers && (
+            <Button
+              variant="primary"
+              onClick={() => onJoin(group.id)}
+              className="flex-1"
+              disabled={isMember}
+            >
+              {isMember ? "Joined" : "Join Group"}
+            </Button>
+          )}
       </div>
     </GlassCard>
   );
