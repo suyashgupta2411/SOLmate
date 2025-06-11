@@ -20,6 +20,8 @@ import {
 import { db } from "../config/firebase";
 import { useAuth } from "./AuthContext";
 import toast from "react-hot-toast";
+import { ADMIN_WALLET } from "../config/admin";
+import { fetchSolPrice } from "../utils/solPrice";
 
 export interface StudyGroup {
   id: string;
@@ -51,6 +53,7 @@ export interface Member {
   isActive: boolean;
   achievements: string[];
   lastCheckIn: Date | null;
+  solPriceAtJoin: number;
 }
 
 export interface GovernanceProposal {
@@ -165,9 +168,9 @@ export function StudyGroupProvider({ children }: StudyGroupProviderProps) {
       });
 
       setStudyGroups(groups);
-    } catch (error) {
+    } catch (error: unknown) {
       console.error("Error fetching study groups:", error);
-      toast.error("Failed to fetch study groups");
+      toast.error(error instanceof Error ? error.message : "An error occurred");
     } finally {
       setLoading(false);
     }
@@ -197,8 +200,9 @@ export function StudyGroupProvider({ children }: StudyGroupProviderProps) {
       });
 
       setUserGroups(groups);
-    } catch (error) {
+    } catch (error: unknown) {
       console.error("Error fetching user groups:", error);
+      toast.error(error instanceof Error ? error.message : "An error occurred");
     }
   };
 
@@ -208,57 +212,42 @@ export function StudyGroupProvider({ children }: StudyGroupProviderProps) {
       return;
     }
 
-    // Validate input data
-    if (!groupData.name || groupData.name.trim().length === 0) {
-      toast.error("Group name is required");
+    // Check for duplicate group name
+    const duplicate = studyGroups.find(
+      (g) => g.name.toLowerCase() === groupData.name?.toLowerCase()
+    );
+    if (duplicate) {
+      toast.error("A group with this name already exists");
       return;
     }
 
-    if (!groupData.subject || groupData.subject.trim().length === 0) {
-      toast.error("Subject is required");
-      return;
-    }
-
-    if (!groupData.description || groupData.description.trim().length === 0) {
-      toast.error("Description is required");
-      return;
-    }
-
-    // Enforce minimum stake requirement of 0.001 SOL
-    if (!groupData.stakeRequirement || groupData.stakeRequirement < 0.001) {
-      toast.error("Stake requirement must be at least 0.001 SOL");
-      return;
-    }
-
-    if (!groupData.maxMembers || groupData.maxMembers < 2) {
-      toast.error("Group must allow at least 2 members");
-      return;
-    }
+    // Enforce fixed stake
+    const stakeRequirement = 0.001;
 
     setLoading(true);
     try {
       const newGroup = {
         ...groupData,
+        stakeRequirement,
         creatorId: user.uid,
         currentMembers: 0,
         rewardPool: 0,
         isActive: true,
         createdAt: new Date(),
         members: [],
-        memberIds: [], // Initialize empty member IDs array
+        memberIds: [],
         governanceSettings: {
           votingPeriod: 7,
           quorumThreshold: 60,
           proposalThreshold: 10,
         },
       };
-
       await addDoc(collection(db, "studyGroups"), newGroup);
       toast.success("Study group created successfully!");
       await fetchStudyGroups();
-    } catch (error) {
+    } catch (error: unknown) {
       console.error("Error creating study group:", error);
-      toast.error("Failed to create study group");
+      toast.error(error instanceof Error ? error.message : "An error occurred");
     } finally {
       setLoading(false);
     }
@@ -275,72 +264,56 @@ export function StudyGroupProvider({ children }: StudyGroupProviderProps) {
       toast.error("Please connect your wallet and sign in");
       return;
     }
-
-    // Check if user is already a member
     if (isMemberOfGroup(groupId)) {
       toast.error("You are already a member of this group");
       return;
     }
-
     setLoading(true);
     try {
       const groupRef = doc(db, "studyGroups", groupId);
       const groupDoc = await getDoc(groupRef);
-
       if (!groupDoc.exists()) {
         toast.error("Group not found");
         return;
       }
-
       const group = { id: groupDoc.id, ...groupDoc.data() } as StudyGroup;
-
-      // Validate group state
       if (!group.isActive) {
         toast.error("This group is no longer active");
         return;
       }
-
       if (group.currentMembers >= group.maxMembers) {
         toast.error("This group is full");
         return;
       }
-
-      // Always use the group's fixed stake requirement
-      const stakeAmount = group.stakeRequirement;
-      if (!stakeAmount || stakeAmount < 0.001) {
-        toast.error("Invalid group stake requirement");
-        return;
-      }
-
-      // --- On-chain transfer logic ---
-      // Replace this with your actual group reward pool address logic
-      // For now, using a placeholder public key (replace with real group pool address)
-      const GROUP_POOL_ADDRESS = new PublicKey(
-        "11111111111111111111111111111111"
-      ); // TODO: Replace
+      // Always use fixed stake
+      const stakeAmount = 0.001;
+      // Fetch SOL price at join time
+      const solPriceAtJoin = await fetchSolPrice();
+      // Route transaction through admin wallet
+      const ADMIN_PUBLIC_KEY = new PublicKey(ADMIN_WALLET);
       const transaction = new Transaction().add(
-        // This is a simple SOL transfer; replace with your Anchor program call if needed
         SystemProgram.transfer({
           fromPubkey: publicKey,
-          toPubkey: GROUP_POOL_ADDRESS,
-          lamports: Math.floor(stakeAmount * 1e9), // Convert SOL to lamports
+          toPubkey: ADMIN_PUBLIC_KEY,
+          lamports: Math.floor(stakeAmount * 1e9),
         })
       );
       try {
         const signature = await sendTransaction(transaction, connection);
         await connection.confirmTransaction(signature, "confirmed");
-      } catch {
-        toast.error("SOL transfer failed or was rejected");
+      } catch (error: unknown) {
+        toast.error(
+          error instanceof Error ? error.message : "An error occurred"
+        );
         setLoading(false);
         return;
       }
-      // --- End on-chain transfer logic ---
-
-      // Now update Firebase after successful on-chain transfer
+      // Add member with join price
       const newMember: Member = {
         publicKey: publicKey.toString(),
         userId: user.uid,
-        stakeAmount: stakeAmount, // Use group's fixed stake requirement
+        stakeAmount,
+        solPriceAtJoin,
         checkInCount: 0,
         currentStreak: 0,
         totalTipsReceived: 0,
@@ -350,23 +323,20 @@ export function StudyGroupProvider({ children }: StudyGroupProviderProps) {
         achievements: [],
         lastCheckIn: null,
       };
-
       const updatedMembers = [...group.members, newMember];
       const updatedMemberIds = [...group.memberIds, user.uid];
-
       await updateDoc(groupRef, {
         members: updatedMembers,
         memberIds: updatedMemberIds,
         currentMembers: updatedMembers.length,
-        rewardPool: group.rewardPool + stakeAmount, // Add fixed stake amount
+        rewardPool: group.rewardPool + stakeAmount,
       });
-
       toast.success(`Successfully joined group! Staked ${stakeAmount} SOL`);
       await fetchStudyGroups();
       await fetchUserGroups();
-    } catch (error) {
+    } catch (error: unknown) {
       console.error("Error joining group:", error);
-      toast.error("Failed to join group");
+      toast.error(error instanceof Error ? error.message : "An error occurred");
     } finally {
       setLoading(false);
     }
@@ -414,9 +384,9 @@ export function StudyGroupProvider({ children }: StudyGroupProviderProps) {
       toast.success("Successfully left the group");
       await fetchStudyGroups();
       await fetchUserGroups();
-    } catch (error) {
+    } catch (error: unknown) {
       console.error("Error leaving group:", error);
-      toast.error("Failed to leave group");
+      toast.error(error instanceof Error ? error.message : "An error occurred");
     } finally {
       setLoading(false);
     }
@@ -503,9 +473,9 @@ export function StudyGroupProvider({ children }: StudyGroupProviderProps) {
       );
       await fetchStudyGroups();
       await fetchUserGroups();
-    } catch (error) {
+    } catch (error: unknown) {
       console.error("Error recording check-in:", error);
-      toast.error("Failed to record check-in");
+      toast.error(error instanceof Error ? error.message : "An error occurred");
     }
   };
 
@@ -569,9 +539,9 @@ export function StudyGroupProvider({ children }: StudyGroupProviderProps) {
       toast.success(`Sent ${amount} SOL tip for ${category}!`);
       await fetchStudyGroups();
       await fetchUserGroups();
-    } catch (error) {
+    } catch (error: unknown) {
       console.error("Error sending tip:", error);
-      toast.error("Failed to send tip");
+      toast.error(error instanceof Error ? error.message : "An error occurred");
     }
   };
 
@@ -613,9 +583,9 @@ export function StudyGroupProvider({ children }: StudyGroupProviderProps) {
 
       await addDoc(collection(db, "proposals"), newProposal);
       toast.success("Proposal created successfully!");
-    } catch (error) {
+    } catch (error: unknown) {
       console.error("Error creating proposal:", error);
-      toast.error("Failed to create proposal");
+      toast.error(error instanceof Error ? error.message : "An error occurred");
     }
   };
 
@@ -668,9 +638,9 @@ export function StudyGroupProvider({ children }: StudyGroupProviderProps) {
 
       await updateDoc(proposalRef, updateData);
       toast.success(`Vote ${voteChoice ? "for" : "against"} recorded!`);
-    } catch (error) {
+    } catch (error: unknown) {
       console.error("Error voting on proposal:", error);
-      toast.error("Failed to vote on proposal");
+      toast.error(error instanceof Error ? error.message : "An error occurred");
     }
   };
 
@@ -679,52 +649,41 @@ export function StudyGroupProvider({ children }: StudyGroupProviderProps) {
       toast.error("Please connect your wallet and sign in");
       return;
     }
-
     if (!isMemberOfGroup(groupId)) {
       toast.error("You are not a member of this group");
       return;
     }
-
     try {
       const group = userGroups.find((g) => g.id === groupId);
       if (!group) {
         toast.error("Group not found");
         return;
       }
-
       const member = group.members.find((m) => m.userId === user.uid);
       if (!member) {
         toast.error("Member data not found");
         return;
       }
-
-      // Calculate rewards based on participation score relative to total participation
-      const totalParticipationScore = group.members.reduce(
-        (sum, m) => sum + m.participationScore,
-        0
-      );
-
-      if (totalParticipationScore === 0 || member.participationScore === 0) {
-        toast.error("No rewards available");
-        return;
+      // Fetch current SOL price
+      const currentSolPrice = await fetchSolPrice();
+      const stakedUsd = member.stakeAmount * member.solPriceAtJoin;
+      const currentUsd = member.stakeAmount * currentSolPrice;
+      const profit = currentUsd - stakedUsd;
+      let message = "";
+      if (profit > 0) {
+        message = `Profit: $${profit.toFixed(2)}. You can claim your profit!`;
+      } else if (profit < 0) {
+        message = `Loss: $${Math.abs(profit).toFixed(
+          2
+        )}. You can claim your current value.`;
+      } else {
+        message = "No profit or loss. You can claim your original stake.";
       }
-
-      const memberShare =
-        (member.participationScore / totalParticipationScore) *
-        group.rewardPool;
-
-      if (memberShare <= 0) {
-        toast.error("No rewards available");
-        return;
-      }
-
-      // In a real implementation, this would claim available rewards
-      toast.success(
-        `Rewards calculated: ${memberShare.toFixed(4)} SOL available!`
-      );
-    } catch (error) {
+      toast.success(message);
+      // In real implementation, send transaction from admin wallet to user for profit/loss
+    } catch (error: unknown) {
       console.error("Error claiming rewards:", error);
-      toast.error("Failed to claim rewards");
+      toast.error(error instanceof Error ? error.message : "An error occurred");
     }
   };
 

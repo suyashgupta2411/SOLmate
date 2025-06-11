@@ -1,16 +1,22 @@
-import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
-import { 
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  ReactNode,
+} from "react";
+import {
   User,
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
   signOut,
   onAuthStateChanged,
   GoogleAuthProvider,
-  signInWithPopup
-} from 'firebase/auth';
-import { doc, setDoc, getDoc } from 'firebase/firestore';
-import { auth, db } from '../config/firebase';
-import toast from 'react-hot-toast';
+  signInWithPopup,
+} from "firebase/auth";
+import { doc, setDoc, getDoc } from "firebase/firestore";
+import { auth, db } from "../config/firebase";
+import toast from "react-hot-toast";
 
 interface UserProfile {
   uid: string;
@@ -29,7 +35,11 @@ interface AuthContextType {
   userProfile: UserProfile | null;
   loading: boolean;
   login: (email: string, password: string) => Promise<void>;
-  register: (email: string, password: string, username: string) => Promise<void>;
+  register: (
+    email: string,
+    password: string,
+    username: string
+  ) => Promise<void>;
   loginWithGoogle: () => Promise<void>;
   logout: () => Promise<void>;
   updateProfile: (data: Partial<UserProfile>) => Promise<void>;
@@ -40,7 +50,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export function useAuth() {
   const context = useContext(AuthContext);
   if (!context) {
-    throw new Error('useAuth must be used within an AuthProvider');
+    throw new Error("useAuth must be used within an AuthProvider");
   }
   return context;
 }
@@ -57,17 +67,17 @@ export function AuthProvider({ children }: AuthProviderProps) {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       setUser(user);
-      
+
       if (user) {
         // Fetch user profile from Firestore
-        const userDoc = await getDoc(doc(db, 'users', user.uid));
+        const userDoc = await getDoc(doc(db, "users", user.uid));
         if (userDoc.exists()) {
           setUserProfile({ ...userDoc.data(), uid: user.uid } as UserProfile);
         }
       } else {
         setUserProfile(null);
       }
-      
+
       setLoading(false);
     });
 
@@ -77,35 +87,44 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const login = async (email: string, password: string) => {
     try {
       await signInWithEmailAndPassword(auth, email, password);
-      toast.success('Successfully logged in!');
-    } catch (error: any) {
-      toast.error(error.message);
+      toast.success("Successfully logged in!");
+    } catch (error: unknown) {
+      toast.error(error instanceof Error ? error.message : "An error occurred");
       throw error;
     }
   };
 
-  const register = async (email: string, password: string, username: string) => {
+  const register = async (
+    email: string,
+    password: string,
+    username: string
+  ) => {
     try {
-      const { user } = await createUserWithEmailAndPassword(auth, email, password);
-      
+      const { user } = await createUserWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
+      // Get wallet from localStorage if present (assume wallet connection UI sets it)
+      const connectedWallet =
+        localStorage.getItem("connectedWallet") || undefined;
       // Create user profile in Firestore
       const userProfile: UserProfile = {
         uid: user.uid,
         email: user.email!,
         username,
-        bio: '',
+        bio: "",
         interests: [],
         joinDate: new Date(),
         studyGroupsJoined: [],
         totalTipsSent: 0,
+        connectedWallet,
       };
-      
-      await setDoc(doc(db, 'users', user.uid), userProfile);
+      await setDoc(doc(db, "users", user.uid), userProfile);
       setUserProfile(userProfile);
-      
-      toast.success('Account created successfully!');
-    } catch (error: any) {
-      toast.error(error.message);
+      toast.success("Account created successfully!");
+    } catch (error: unknown) {
+      toast.error(error instanceof Error ? error.message : "An error occurred");
       throw error;
     }
   };
@@ -114,28 +133,29 @@ export function AuthProvider({ children }: AuthProviderProps) {
     try {
       const provider = new GoogleAuthProvider();
       const { user } = await signInWithPopup(auth, provider);
-      
+      // Get wallet from localStorage if present
+      const connectedWallet =
+        localStorage.getItem("connectedWallet") || undefined;
       // Check if user profile exists, create if not
-      const userDoc = await getDoc(doc(db, 'users', user.uid));
+      const userDoc = await getDoc(doc(db, "users", user.uid));
       if (!userDoc.exists()) {
         const userProfile: UserProfile = {
           uid: user.uid,
           email: user.email!,
-          username: user.displayName || 'User',
-          bio: '',
+          username: user.displayName || "User",
+          bio: "",
           interests: [],
           joinDate: new Date(),
           studyGroupsJoined: [],
           totalTipsSent: 0,
+          connectedWallet,
         };
-        
-        await setDoc(doc(db, 'users', user.uid), userProfile);
+        await setDoc(doc(db, "users", user.uid), userProfile);
         setUserProfile(userProfile);
       }
-      
-      toast.success('Successfully logged in with Google!');
-    } catch (error: any) {
-      toast.error(error.message);
+      toast.success("Successfully logged in with Google!");
+    } catch (error: unknown) {
+      toast.error(error instanceof Error ? error.message : "An error occurred");
       throw error;
     }
   };
@@ -143,21 +163,29 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const logout = async () => {
     try {
       await signOut(auth);
-      toast.success('Logged out successfully!');
-    } catch (error: any) {
-      toast.error(error.message);
+      toast.success("Logged out successfully!");
+    } catch (error: unknown) {
+      toast.error(error instanceof Error ? error.message : "An error occurred");
     }
   };
 
   const updateProfile = async (data: Partial<UserProfile>) => {
     if (!user) return;
-    
     try {
-      await setDoc(doc(db, 'users', user.uid), data, { merge: true });
-      setUserProfile(prev => prev ? { ...prev, ...data } : null);
-      toast.success('Profile updated successfully!');
-    } catch (error: any) {
-      toast.error(error.message);
+      // If wallet is present in localStorage, update it
+      const connectedWallet =
+        localStorage.getItem("connectedWallet") || undefined;
+      await setDoc(
+        doc(db, "users", user.uid),
+        { ...data, connectedWallet },
+        { merge: true }
+      );
+      setUserProfile((prev) =>
+        prev ? { ...prev, ...data, connectedWallet } : null
+      );
+      toast.success("Profile updated successfully!");
+    } catch (error: unknown) {
+      toast.error(error instanceof Error ? error.message : "An error occurred");
       throw error;
     }
   };
@@ -173,9 +201,5 @@ export function AuthProvider({ children }: AuthProviderProps) {
     updateProfile,
   };
 
-  return (
-    <AuthContext.Provider value={value}>
-      {children}
-    </AuthContext.Provider>
-  );
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
