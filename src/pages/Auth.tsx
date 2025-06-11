@@ -1,17 +1,17 @@
-import React, { useState } from 'react';
-import { Navigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { Mail, Lock, User, Chrome } from 'lucide-react';
-import { useAuth } from '../contexts/AuthContext';
-import GlassCard from '../components/ui/GlassCard';
-import Button from '../components/ui/Button';
+import React, { useState } from "react";
+import { Navigate } from "react-router-dom";
+import { motion } from "framer-motion";
+import { Mail, Lock, User, Chrome } from "lucide-react";
+import { useAuth } from "../contexts/AuthContext";
+import GlassCard from "../components/ui/GlassCard";
+import Button from "../components/ui/Button";
 
 export default function Auth() {
   const [isLogin, setIsLogin] = useState(true);
   const [formData, setFormData] = useState({
-    email: '',
-    password: '',
-    username: '',
+    email: "",
+    password: "",
+    username: "",
   });
   const [loading, setLoading] = useState(false);
 
@@ -31,7 +31,7 @@ export default function Auth() {
       } else {
         await register(formData.email, formData.password, formData.username);
       }
-    } catch (error) {
+    } catch {
       // Error is handled in the auth context
     } finally {
       setLoading(false);
@@ -39,9 +39,9 @@ export default function Auth() {
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [e.target.name]: e.target.value
+      [e.target.name]: e.target.value,
     }));
   };
 
@@ -49,7 +49,7 @@ export default function Auth() {
     setLoading(true);
     try {
       await loginWithGoogle();
-    } catch (error) {
+    } catch {
       // Error is handled in the auth context
     } finally {
       setLoading(false);
@@ -67,13 +67,12 @@ export default function Auth() {
         <GlassCard className="p-8">
           <div className="text-center mb-8">
             <h2 className="text-3xl font-bold text-white mb-2">
-              {isLogin ? 'Welcome Back' : 'Create Account'}
+              {isLogin ? "Welcome Back" : "Create Account"}
             </h2>
             <p className="text-gray-300">
-              {isLogin 
-                ? 'Sign in to continue your learning journey' 
-                : 'Join the decentralized learning revolution'
-              }
+              {isLogin
+                ? "Sign in to continue your learning journey"
+                : "Join the decentralized learning revolution"}
             </p>
           </div>
 
@@ -134,12 +133,8 @@ export default function Auth() {
               </div>
             </div>
 
-            <Button
-              type="submit"
-              loading={loading}
-              className="w-full py-3"
-            >
-              {isLogin ? 'Sign In' : 'Create Account'}
+            <Button type="submit" loading={loading} className="w-full py-3">
+              {isLogin ? "Sign In" : "Create Account"}
             </Button>
           </form>
 
@@ -149,7 +144,9 @@ export default function Auth() {
                 <div className="w-full border-t border-gray-700" />
               </div>
               <div className="relative flex justify-center text-sm">
-                <span className="px-2 bg-dark-950 text-gray-400">Or continue with</span>
+                <span className="px-2 bg-dark-950 text-gray-400">
+                  Or continue with
+                </span>
               </div>
             </div>
 
@@ -172,7 +169,7 @@ export default function Auth() {
                 onClick={() => setIsLogin(!isLogin)}
                 className="ml-2 text-accent-400 hover:text-accent-300 font-medium"
               >
-                {isLogin ? 'Sign up' : 'Sign in'}
+                {isLogin ? "Sign up" : "Sign in"}
               </button>
             </p>
           </div>

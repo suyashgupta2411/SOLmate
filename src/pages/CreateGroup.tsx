@@ -1,6 +1,5 @@
-import React from 'react';
-import { motion } from 'framer-motion';
-import CreateGroupForm from '../components/groups/CreateGroupForm';
+import { motion } from "framer-motion";
+import CreateGroupForm from "../components/groups/CreateGroupForm";
 
 export default function CreateGroup() {
   return (
@@ -12,10 +11,13 @@ export default function CreateGroup() {
           transition={{ duration: 0.5 }}
           className="mb-8 text-center"
         >
-          <h1 className="text-4xl font-bold text-white mb-4">Create Study Group</h1>
+          <h1 className="text-4xl font-bold text-white mb-4">
+            Create Study Group
+          </h1>
           <p className="text-xl text-gray-300 max-w-2xl mx-auto">
-            Start your own decentralized study group and build a community of learners 
-            committed to success through blockchain-verified participation.
+            Start your own decentralized study group and build a community of
+            learners committed to success through blockchain-verified
+            participation.
           </p>
         </motion.div>
 

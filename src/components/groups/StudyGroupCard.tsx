@@ -1,4 +1,3 @@
-import React from "react";
 // import { motion } from "framer-motion";
 import { Users, Clock, Coins, TrendingUp } from "lucide-react";
 import { StudyGroup } from "../../contexts/StudyGroupContext";

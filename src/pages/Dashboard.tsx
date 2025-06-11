@@ -1,72 +1,93 @@
-import React, { useEffect } from 'react';
-import { motion } from 'framer-motion';
-import { 
-  TrendingUp, 
-  Users, 
-  Coins, 
+import React, { useEffect } from "react";
+import { motion } from "framer-motion";
+import {
+  Users,
+  Coins,
   Trophy,
   Calendar,
   Target,
   Zap,
-  Star
-} from 'lucide-react';
-import { useAuth } from '../contexts/AuthContext';
-import { useStudyGroup } from '../contexts/StudyGroupContext';
-import GlassCard from '../components/ui/GlassCard';
-import Button from '../components/ui/Button';
-import StudyGroupCard from '../components/groups/StudyGroupCard';
+  Star,
+} from "lucide-react";
+import { useAuth } from "../contexts/AuthContext";
+import { useStudyGroup } from "../contexts/StudyGroupContext";
+import GlassCard from "../components/ui/GlassCard";
+import Button from "../components/ui/Button";
+import StudyGroupCard from "../components/groups/StudyGroupCard";
 
 export default function Dashboard() {
   const { userProfile } = useAuth();
-  const { userGroups, fetchStudyGroups, loading, dailyCheckIn, getUserStats } = useStudyGroup();
+  const { userGroups, fetchStudyGroups, loading, dailyCheckIn, getUserStats } =
+    useStudyGroup();
 
   useEffect(() => {
     fetchStudyGroups();
   }, []);
 
   const stats = getUserStats();
-  
+
   const dashboardStats = [
     {
       icon: Users,
-      label: 'Groups Joined',
+      label: "Groups Joined",
       value: stats.groupsJoined,
-      color: 'text-primary-400',
+      color: "text-primary-400",
     },
     {
       icon: Coins,
-      label: 'Tips Received',
+      label: "Tips Received",
       value: stats.totalTips,
-      color: 'text-yellow-400',
+      color: "text-yellow-400",
     },
     {
       icon: Trophy,
-      label: 'Achievements',
+      label: "Achievements",
       value: stats.achievements,
-      color: 'text-accent-400',
+      color: "text-accent-400",
     },
     {
       icon: Zap,
-      label: 'Current Streak',
+      label: "Current Streak",
       value: stats.currentStreak,
-      color: 'text-green-400',
+      color: "text-green-400",
     },
   ];
 
   const recentActivity = [
-    { type: 'checkin', message: 'Daily check-in completed', time: '2 hours ago' },
-    { type: 'tip', message: 'Received 0.01 SOL tip from @alice', time: '4 hours ago' },
-    { type: 'achievement', message: 'Earned "Consistent Learner" badge', time: '1 day ago' },
-    { type: 'vote', message: 'Voted on study schedule proposal', time: '2 days ago' },
+    {
+      type: "checkin",
+      message: "Daily check-in completed",
+      time: "2 hours ago",
+    },
+    {
+      type: "tip",
+      message: "Received 0.01 SOL tip from @alice",
+      time: "4 hours ago",
+    },
+    {
+      type: "achievement",
+      message: 'Earned "Consistent Learner" badge',
+      time: "1 day ago",
+    },
+    {
+      type: "vote",
+      message: "Voted on study schedule proposal",
+      time: "2 days ago",
+    },
   ];
 
   const getActivityIcon = (type: string) => {
     switch (type) {
-      case 'checkin': return <Calendar className="h-4 w-4 text-green-400" />;
-      case 'tip': return <Coins className="h-4 w-4 text-yellow-400" />;
-      case 'achievement': return <Trophy className="h-4 w-4 text-accent-400" />;
-      case 'vote': return <Target className="h-4 w-4 text-primary-400" />;
-      default: return <Star className="h-4 w-4 text-gray-400" />;
+      case "checkin":
+        return <Calendar className="h-4 w-4 text-green-400" />;
+      case "tip":
+        return <Coins className="h-4 w-4 text-yellow-400" />;
+      case "achievement":
+        return <Trophy className="h-4 w-4 text-accent-400" />;
+      case "vote":
+        return <Target className="h-4 w-4 text-primary-400" />;
+      default:
+        return <Star className="h-4 w-4 text-gray-400" />;
     }
   };
 
@@ -81,7 +102,7 @@ export default function Dashboard() {
           className="mb-8"
         >
           <h1 className="text-4xl font-bold text-white mb-2">
-            Welcome back, {userProfile?.username || 'Learner'}! 👋
+            Welcome back, {userProfile?.username || "Learner"}! 👋
           </h1>
           <p className="text-gray-300 text-lg">
             Here's your learning progress and recent activity.
@@ -101,7 +122,9 @@ export default function Dashboard() {
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-gray-400 text-sm">{stat.label}</p>
-                    <p className="text-2xl font-bold text-white">{stat.value}</p>
+                    <p className="text-2xl font-bold text-white">
+                      {stat.value}
+                    </p>
                   </div>
                   <stat.icon className={`h-8 w-8 ${stat.color}`} />
                 </div>
@@ -118,12 +141,16 @@ export default function Dashboard() {
             transition={{ duration: 0.5, delay: 0.2 }}
           >
             <GlassCard className="p-6">
-              <h3 className="text-xl font-semibold text-white mb-4">Quick Actions</h3>
+              <h3 className="text-xl font-semibold text-white mb-4">
+                Quick Actions
+              </h3>
               <div className="space-y-3">
-                <Button 
-                  variant="primary" 
+                <Button
+                  variant="primary"
                   className="w-full justify-start"
-                  onClick={() => userGroups.length > 0 && dailyCheckIn(userGroups[0].id)}
+                  onClick={() =>
+                    userGroups.length > 0 && dailyCheckIn(userGroups[0].id)
+                  }
                   disabled={userGroups.length === 0}
                 >
                   <Calendar className="h-4 w-4 mr-2" />
@@ -149,7 +176,9 @@ export default function Dashboard() {
             className="lg:col-span-2"
           >
             <GlassCard className="p-6">
-              <h3 className="text-xl font-semibold text-white mb-4">Recent Activity</h3>
+              <h3 className="text-xl font-semibold text-white mb-4">
+                Recent Activity
+              </h3>
               {userGroups.length > 0 ? (
                 <div className="space-y-4">
                   {recentActivity.map((activity, index) => (
@@ -167,7 +196,9 @@ export default function Dashboard() {
               ) : (
                 <div className="text-center py-8">
                   <Star className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                  <p className="text-gray-400">No recent activity. Join a study group to get started!</p>
+                  <p className="text-gray-400">
+                    No recent activity. Join a study group to get started!
+                  </p>
                 </div>
               )}
             </GlassCard>
@@ -209,7 +240,7 @@ export default function Dashboard() {
                   key={group.id}
                   group={group}
                   showJoinButton={false}
-                  onView={(id) => console.log('View group:', id)}
+                  onView={(id) => console.log("View group:", id)}
                 />
               ))}
             </div>

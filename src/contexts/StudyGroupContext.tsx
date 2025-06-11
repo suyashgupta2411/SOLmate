@@ -1,4 +1,4 @@
-import React, {
+import {
   createContext,
   useContext,
   useState,
@@ -569,7 +569,11 @@ export function StudyGroupProvider({ children }: StudyGroupProviderProps) {
       const newProposal: Partial<GovernanceProposal> = {
         groupId,
         proposer: user.uid,
-        proposalType: proposalType as any,
+        proposalType: proposalType as
+          | "CHANGE_TOPIC"
+          | "UPDATE_SCHEDULE"
+          | "ADD_RESOURCE"
+          | "MODIFY_STAKE",
         description: description.trim(),
         votesFor: 0,
         votesAgainst: 0,

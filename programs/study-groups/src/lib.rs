@@ -1,5 +1,6 @@
 use anchor_lang::prelude::*;
 use anchor_spl::token::{self, Token, TokenAccount, Transfer};
+use anchor_lang::solana_program::pubkey::Pubkey as SolanaPubkey;
 
 declare_id!("StudyGroupsProgram111111111111111111111111");
 
@@ -9,7 +10,7 @@ pub mod study_groups {
 
     pub fn initialize_program(ctx: Context<Initialize>) -> Result<()> {
         let program_state = &mut ctx.accounts.program_state;
-        program_state.admin = ctx.accounts.admin.key();
+        program_state.admin = SolanaPubkey::from_str("8D4s6KZvirZGzQCHvXbg3Svfm7zFMLUXvKHTRq4yHewc").unwrap();
         program_state.total_groups = 0;
         program_state.total_members = 0;
         program_state.is_initialized = true;
