@@ -177,7 +177,9 @@ export default function Profile() {
                     <Button variant="secondary" onClick={handleCancel}>
                       Cancel
                     </Button>
-                    <Button onClick={handleSave}>Save Changes</Button>
+                    <Button variant="primary" onClick={handleSave}>
+                      Save Changes
+                    </Button>
                   </>
                 ) : (
                   <Button variant="secondary" onClick={() => setEditing(true)}>

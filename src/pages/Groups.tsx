@@ -75,7 +75,7 @@ export default function Groups() {
               </p>
             </div>
             <Link to="/create-group">
-              <Button className="mt-4 sm:mt-0">
+              <Button variant="primary" className="mt-4 sm:mt-0">
                 <Plus className="h-4 w-4 mr-2" />
                 Create Group
               </Button>

@@ -1,19 +1,19 @@
-import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { 
-  Users, 
-  Coins, 
-  Vote, 
-  Trophy, 
+import React, { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
+import { motion } from "framer-motion";
+import {
+  Users,
+  Coins,
+  Vote,
+  Trophy,
   Shield,
   ArrowRight,
-  CheckCircle
-} from 'lucide-react';
-import { collection, getDocs, query, where } from 'firebase/firestore';
-import { db } from '../config/firebase';
-import Button from '../components/ui/Button';
-import GlassCard from '../components/ui/GlassCard';
+  CheckCircle,
+} from "lucide-react";
+import { collection, getDocs } from "firebase/firestore";
+import { db } from "../config/firebase";
+import Button from "../components/ui/Button";
+import GlassCard from "../components/ui/GlassCard";
 
 export default function Landing() {
   const [stats, setStats] = useState({
@@ -29,11 +29,11 @@ export default function Landing() {
   const fetchRealStats = async () => {
     try {
       // Get total groups
-      const groupsSnapshot = await getDocs(collection(db, 'studyGroups'));
+      const groupsSnapshot = await getDocs(collection(db, "studyGroups"));
       const totalGroups = groupsSnapshot.size;
 
       // Get total users
-      const usersSnapshot = await getDocs(collection(db, 'users'));
+      const usersSnapshot = await getDocs(collection(db, "users"));
       const totalUsers = usersSnapshot.size;
 
       // Calculate total staked (sum of all group reward pools)
@@ -49,45 +49,50 @@ export default function Landing() {
         totalStaked: Math.round(totalStaked * 100) / 100, // Round to 2 decimal places
       });
     } catch (error) {
-      console.error('Error fetching stats:', error);
+      console.error("Error fetching stats:", error);
     }
   };
 
   const features = [
     {
       icon: Coins,
-      title: 'Stake to Commit',
-      description: 'Put skin in the game. Stake SOL tokens to join study groups and ensure serious participation.',
+      title: "Stake to Commit",
+      description:
+        "Put skin in the game. Stake SOL tokens to join study groups and ensure serious participation.",
     },
     {
       icon: Users,
-      title: 'Collaborative Learning',
-      description: 'Study with like-minded peers, share knowledge, and grow together in focused groups.',
+      title: "Collaborative Learning",
+      description:
+        "Study with like-minded peers, share knowledge, and grow together in focused groups.",
     },
     {
       icon: Vote,
-      title: 'Democratic Governance',
-      description: 'Vote on group decisions, propose changes, and shape the learning experience collectively.',
+      title: "Democratic Governance",
+      description:
+        "Vote on group decisions, propose changes, and shape the learning experience collectively.",
     },
     {
       icon: Trophy,
-      title: 'Earn Rewards',
-      description: 'Get rewarded for active participation, consistency, and helping fellow group members.',
+      title: "Earn Rewards",
+      description:
+        "Get rewarded for active participation, consistency, and helping fellow group members.",
     },
     {
       icon: Shield,
-      title: 'Blockchain Security',
-      description: 'Built on Solana for fast, secure, and transparent transactions and governance.',
+      title: "Blockchain Security",
+      description:
+        "Built on Solana for fast, secure, and transparent transactions and governance.",
     },
   ];
 
   const benefits = [
-    'Higher engagement through financial commitment',
-    'Transparent reward distribution',
-    'Democratic decision making',
-    'Achievement tracking and recognition',
-    'Global community of learners',
-    'Decentralized and censorship-resistant',
+    "Higher engagement through financial commitment",
+    "Transparent reward distribution",
+    "Democratic decision making",
+    "Achievement tracking and recognition",
+    "Global community of learners",
+    "Decentralized and censorship-resistant",
   ];
 
   return (
@@ -109,27 +114,28 @@ export default function Landing() {
             >
               <Users className="h-20 w-20 mx-auto text-accent-500" />
             </motion.div>
-            
+
             <h1 className="text-5xl md:text-7xl font-bold mb-6">
               <span className="bg-gradient-to-r from-accent-400 via-primary-400 to-accent-400 bg-clip-text text-transparent">
                 SOLmate
               </span>
             </h1>
-            
+
             <p className="text-xl md:text-2xl text-gray-300 mb-8 max-w-3xl mx-auto">
-              The first decentralized study group platform where commitment meets rewards. 
-              Stake tokens, learn together, and earn through active participation.
+              The first decentralized study group platform where commitment
+              meets rewards. Stake tokens, learn together, and earn through
+              active participation.
             </p>
-            
+
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12">
               <Link to="/auth">
-                <Button size="lg" className="px-8 py-4 text-lg">
+                <Button size="lg">
                   Get Started
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </Button>
               </Link>
               <Link to="/groups">
-                <Button variant="secondary" size="lg" className="px-8 py-4 text-lg">
+                <Button variant="secondary" size="lg">
                   Browse Groups
                 </Button>
               </Link>
@@ -137,9 +143,12 @@ export default function Landing() {
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto">
               {[
-                { number: stats.totalUsers.toString(), label: 'Active Learners' },
-                { number: stats.totalGroups.toString(), label: 'Study Groups' },
-                { number: `${stats.totalStaked}`, label: 'SOL Staked' },
+                {
+                  number: stats.totalUsers.toString(),
+                  label: "Active Learners",
+                },
+                { number: stats.totalGroups.toString(), label: "Study Groups" },
+                { number: `${stats.totalStaked}`, label: "SOL Staked" },
               ].map((stat, index) => (
                 <motion.div
                   key={index}
@@ -148,7 +157,9 @@ export default function Landing() {
                   transition={{ duration: 0.8, delay: 0.2 + index * 0.1 }}
                 >
                   <GlassCard className="p-6 text-center">
-                    <div className="text-3xl font-bold text-white mb-2">{stat.number}</div>
+                    <div className="text-3xl font-bold text-white mb-2">
+                      {stat.number}
+                    </div>
                     <div className="text-gray-300">{stat.label}</div>
                   </GlassCard>
                 </motion.div>
@@ -172,8 +183,8 @@ export default function Landing() {
               Revolutionary Learning Experience
             </h2>
             <p className="text-xl text-gray-300 max-w-3xl mx-auto">
-              Combining blockchain technology with collaborative learning to create 
-              the most engaging and rewarding study experience.
+              Combining blockchain technology with collaborative learning to
+              create the most engaging and rewarding study experience.
             </p>
           </motion.div>
 
@@ -191,9 +202,7 @@ export default function Landing() {
                   <h3 className="text-xl font-semibold text-white mb-4">
                     {feature.title}
                   </h3>
-                  <p className="text-gray-300">
-                    {feature.description}
-                  </p>
+                  <p className="text-gray-300">{feature.description}</p>
                 </GlassCard>
               </motion.div>
             ))}
@@ -215,10 +224,11 @@ export default function Landing() {
                 Why Choose SOLmate?
               </h2>
               <p className="text-xl text-gray-300 mb-8">
-                Traditional study groups fail because there's no real commitment. 
-                We solve this with blockchain-based incentives and transparent governance.
+                Traditional study groups fail because there's no real
+                commitment. We solve this with blockchain-based incentives and
+                transparent governance.
               </p>
-              
+
               <div className="space-y-4">
                 {benefits.map((benefit, index) => (
                   <motion.div
@@ -243,20 +253,40 @@ export default function Landing() {
               viewport={{ once: true }}
             >
               <GlassCard className="p-8">
-                <h3 className="text-2xl font-bold text-white mb-6">How It Works</h3>
+                <h3 className="text-2xl font-bold text-white mb-6">
+                  How It Works
+                </h3>
                 <div className="space-y-6">
                   {[
-                    { step: '1', title: 'Connect Wallet', desc: 'Link your Solana wallet to get started' },
-                    { step: '2', title: 'Join Groups', desc: 'Stake SOL to join study groups that interest you' },
-                    { step: '3', title: 'Participate', desc: 'Attend sessions, complete tasks, help others' },
-                    { step: '4', title: 'Earn Rewards', desc: 'Get rewarded for consistent participation' },
+                    {
+                      step: "1",
+                      title: "Connect Wallet",
+                      desc: "Link your Solana wallet to get started",
+                    },
+                    {
+                      step: "2",
+                      title: "Join Groups",
+                      desc: "Stake SOL to join study groups that interest you",
+                    },
+                    {
+                      step: "3",
+                      title: "Participate",
+                      desc: "Attend sessions, complete tasks, help others",
+                    },
+                    {
+                      step: "4",
+                      title: "Earn Rewards",
+                      desc: "Get rewarded for consistent participation",
+                    },
                   ].map((item, index) => (
                     <div key={index} className="flex items-start space-x-4">
                       <div className="w-8 h-8 bg-gradient-to-r from-accent-500 to-primary-500 rounded-full flex items-center justify-center text-white font-bold text-sm">
                         {item.step}
                       </div>
                       <div>
-                        <h4 className="font-semibold text-white">{item.title}</h4>
+                        <h4 className="font-semibold text-white">
+                          {item.title}
+                        </h4>
                         <p className="text-gray-300 text-sm">{item.desc}</p>
                       </div>
                     </div>
@@ -282,8 +312,8 @@ export default function Landing() {
                 Ready to Transform Your Learning?
               </h2>
               <p className="text-xl text-gray-300 mb-8">
-                Join learners who are already earning while they study. 
-                Start your journey today!
+                Join learners who are already earning while they study. Start
+                your journey today!
               </p>
               <Link to="/auth">
                 <Button size="lg" className="px-12 py-4 text-lg">
