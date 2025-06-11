@@ -226,16 +226,32 @@ export function StudyGroupProvider({ children }: StudyGroupProviderProps) {
 
     setLoading(true);
     try {
+      // Add creator as the first member
+      const solPriceAtJoin = await fetchSolPrice();
+      const creatorMember = {
+        publicKey: publicKey.toString(),
+        userId: user.uid,
+        stakeAmount: stakeRequirement,
+        solPriceAtJoin,
+        checkInCount: 0,
+        currentStreak: 0,
+        totalTipsReceived: 0,
+        participationScore: 0,
+        joinDate: new Date(),
+        isActive: true,
+        achievements: [],
+        lastCheckIn: null,
+      };
       const newGroup = {
         ...groupData,
         stakeRequirement,
         creatorId: user.uid,
-        currentMembers: 0,
-        rewardPool: 0,
+        currentMembers: 1,
+        rewardPool: stakeRequirement,
         isActive: true,
         createdAt: new Date(),
-        members: [],
-        memberIds: [],
+        members: [creatorMember],
+        memberIds: [user.uid],
         governanceSettings: {
           votingPeriod: 7,
           quorumThreshold: 60,
@@ -245,6 +261,7 @@ export function StudyGroupProvider({ children }: StudyGroupProviderProps) {
       await addDoc(collection(db, "studyGroups"), newGroup);
       toast.success("Study group created successfully!");
       await fetchStudyGroups();
+      await fetchUserGroups();
     } catch (error: unknown) {
       console.error("Error creating study group:", error);
       toast.error(error instanceof Error ? error.message : "An error occurred");

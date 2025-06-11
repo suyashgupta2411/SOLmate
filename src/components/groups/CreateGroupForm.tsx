@@ -1,35 +1,50 @@
-import React, { useState } from 'react';
-import { motion } from 'framer-motion';
-import { useStudyGroup } from '../../contexts/StudyGroupContext';
-import GlassCard from '../ui/GlassCard';
-import Button from '../ui/Button';
+import React, { useState } from "react";
+import { motion } from "framer-motion";
+import { useStudyGroup } from "../../contexts/StudyGroupContext";
+import GlassCard from "../ui/GlassCard";
+import Button from "../ui/Button";
+import { useNavigate } from "react-router-dom";
 
 export default function CreateGroupForm() {
   const { createStudyGroup, loading } = useStudyGroup();
   const [formData, setFormData] = useState({
-    name: '',
-    subject: '',
-    description: '',
+    name: "",
+    subject: "",
+    description: "",
     maxMembers: 10,
     stakeRequirement: 0.001, // Set to 0.001 SOL for testing
     duration: 30,
   });
+  const navigate = useNavigate();
 
   const subjects = [
-    'Programming', 'Mathematics', 'Science', 'Technology', 'Business',
-    'Language Learning', 'Art & Design', 'Music', 'Literature', 'History'
+    "Programming",
+    "Mathematics",
+    "Science",
+    "Technology",
+    "Business",
+    "Language Learning",
+    "Art & Design",
+    "Music",
+    "Literature",
+    "History",
   ];
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     await createStudyGroup(formData);
+    navigate("/dashboard");
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+    >
+  ) => {
     const { name, value, type } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: type === 'number' ? parseFloat(value) : value
+      [name]: type === "number" ? parseFloat(value) : value,
     }));
   };
 
@@ -41,8 +56,10 @@ export default function CreateGroupForm() {
         transition={{ duration: 0.5 }}
       >
         <GlassCard className="p-8">
-          <h2 className="text-2xl font-bold text-white mb-6">Create Study Group</h2>
-          
+          <h2 className="text-2xl font-bold text-white mb-6">
+            Create Study Group
+          </h2>
+
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
               <label className="block text-sm font-medium text-gray-300 mb-2">
@@ -71,7 +88,7 @@ export default function CreateGroupForm() {
                 className="w-full px-4 py-3 bg-white/10 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-accent-500 focus:border-transparent"
               >
                 <option value="">Select a subject</option>
-                {subjects.map(subject => (
+                {subjects.map((subject) => (
                   <option key={subject} value={subject} className="bg-dark-800">
                     {subject}
                   </option>
@@ -146,7 +163,9 @@ export default function CreateGroupForm() {
             </div>
 
             <div className="bg-primary-500/10 border border-primary-500/20 rounded-lg p-4">
-              <h4 className="text-primary-300 font-medium mb-2">Group Settings</h4>
+              <h4 className="text-primary-300 font-medium mb-2">
+                Group Settings
+              </h4>
               <ul className="text-sm text-gray-300 space-y-1">
                 <li>• Members stake {formData.stakeRequirement} SOL to join</li>
                 <li>• Group runs for {formData.duration} days</li>
